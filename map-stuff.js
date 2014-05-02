@@ -1,79 +1,92 @@
-function loadGpx() {
-    var wpt1 = new wpt(42.438878, -71.119277);
-    var wpt2 = new wpt(42.439227, -71.119689);
-    var wpt3 = new wpt(42.438917, -71.116146);
-    var wpt4 = new wpt(42.443904, -71.122044);
-    var wpt5 = new wpt(42.447298, -71.121447);
-    wpt1.name="wpt1";
-    wpt2.name="wpt2";
-    wpt3.name="wpt3";
-    wpt4.name="wpt4";
-    wpt5.name="wpt5";
+function loadPoints() {
+    // hide all old points - I need to figure out how to fully delete them easily
+    for (i=0;i<gpxs.wpt.length;i++)
+        {
+            gpxs.wpt[i].marker.setVisible(false);
+        }
+    var gpx_text = document.getElementById('gpx_input').value;
+    var gpx_xml_doc = $.parseXML(gpx_text);
 
-    var trkseg1 = new trkseg();
-    trkseg1.trkpt.push(wpt1);
-    trkseg1.trkpt.push(wpt2);
-    trkseg1.trkpt.push(wpt3);
-    trkseg1.trkpt.push(wpt4);
-    trkseg1.trkpt.push(wpt5);
+    gpxs = new gpx();
 
-    var trk1 = new trk();
-    trk1.trkseg.push(trkseg1);
-
-    var gpx1 = new gpx();
-    gpx1.trk.push(trk1);
-
-    return gpx1;
+    $(gpx_xml_doc).find("wpt").each(function(){
+            var lat = $(this).attr('lat');
+            var lon = $(this).attr('lon');
+            var time = $(this).find('time').text();
+            var waypoint = new wpt(lat, lon);
+            waypoint.name = "(" + lat + ", " + lon + ")";
+            waypoint.time = time
+                waypoint.marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(waypoint.lat,waypoint.lon),
+                        map: map,
+                        title: waypoint.name
+                    });
+            gpxs.wpt.push(waypoint);
+        });
+    gpxs.wpt.sort(function(a, b){
+            if (a.time > b.time) {
+                return 1;
+            }
+            return -1;
+        });
+    if (gpxs.wpt.length > 0) {
+        var center = new google.maps.LatLng(gpxs.wpt[0].lat, gpxs.wpt[0].lon);
+    }
+    map.setCenter(center);
+    loadSlider();
+    showPoints();
 }
 
-function initialize() {
-    var gpx = loadGpx();
-    var pts = gpx.trk[0].trkseg[0].trkpt;
-    
-    var myLatlng = new google.maps.LatLng(42.438878,-71.119277);
-    var mapOptions = {
-        zoom: 10,
-        center: myLatlng
-    }
-
-    var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-    map.setZoom(15);
-
-    for (i=0;i<pts.length;i++)
+function showPoints() {
+    for (i=0;i<gpxs.wpt.length;i++)
         {
-            pts[i].marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(pts[i].lat,pts[i].lon),
-                    map: map,
-                    title: pts[i].name
-                });
-//             var infowindow1 = new google.maps.InfoWindow({
-//                     content: "<a href=\"/events/1/\">Started writing Happenings</a><br><a href=\"/events/profile/1\">stevenorum</a><br>Feb. 15, 2014, 8:54 p.m.<br>I started work on Happenings while eating lunch at Panera."
-//                 });
-//             google.maps.event.addListener(marker1, 'click', function() {
-//                     infowindow1.open(map,marker1);
-//                 });
-
+            gpxs.wpt[i].marker.setVisible(true);
         }
-    
+}
+
+function loadAndShowPoints() {
+    loadPoints();
+    showPoints();
+}
+
+function loadSlider() {
     $(function() {
-            $( "#slider" ).slider({ min: 0, max: pts.length - 1 });
+            $( "#slider" ).slider({ min: 0, max: gpxs.wpt.length - 1 });
         });
     $( "#slider" ).on("slidechange",function( event, ui ) {
-            
-            for (i=0;i<pts.length;i++)
+            var point = gpxs.wpt[ui.value];
+            var point_text = "(" + point.lat + ", " + point.lon + "), " + point.time;
+            document.getElementById('header').innerHTML = 'Current point: ' + point_text;
+
+            for (i=0;i<gpxs.wpt.length;i++)
                 {
                     if (i != ui.value) {
-                        pts[i].marker.setVisible(false);
+                        gpxs.wpt[i].marker.setVisible(false);
                     }
                     else {
-                        pts[i].marker.setVisible(true);
+                        gpxs.wpt[i].marker.setVisible(true);
                     }
                 }
         });
-
 }
 
+function initialize() {
+    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    gpxs = new gpx();
 
+    loadPoints();
 
+    var myLatlng = new google.maps.LatLng(1,1);
+    var mapOptions = {
+        zoom: 5,
+        center: myLatlng
+    }
+
+    map.setZoom(15);
+
+    document.getElementById("loadPoints").onclick = loadPoints;
+    document.getElementById("showPoints").onclick = showPoints;
+
+}
 
 google.maps.event.addDomListener(window, 'load', initialize);

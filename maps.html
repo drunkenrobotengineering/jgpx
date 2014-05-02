@@ -6,27 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-
     <title>Maps playground</title>
-
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   </head>
   <body>
     <div class="container-fluid">
       <div class="row">
         <div class="main">
+          <h1 id="header" class="page-header">Current point:</h1>
 
-          <h1 class="page-header">Testing displaying routes:</h1>
-          <div id="slider"></div>
-          <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+          <div id="slider" style="width:1000px"></div>
+          <div style="height: 800px;width: 1000px;float:left" id="map-canvas"></div>
+          <div style="height: 800px;float:right" id="gpx">
 
-          <script src="gpx.js"></script>
-          <script src="map-stuff.js"></script>
-          <div style="height: 700px;" id="map-canvas"></div>
+            <div class="row">
+              <textarea id="gpx_input" rows="50" cols="50"></textarea>
+            </div>
+            <div class="row">
+              <button id="loadPoints" type="button" onclick="">Load points</button>
+              <button id="showPoints" type="button" onclick="">Show all points</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </body>
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+  <script src="gpx.js"></script>
+  <script src="map-stuff.js"></script>
 </html>
