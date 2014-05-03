@@ -1,3 +1,5 @@
+// object model
+
 function bounds(minlat, minlon, maxlat, maxlon)
 {
     this.minlat = minlat;
@@ -80,4 +82,76 @@ function gpx()
     this.rte = [];
     this.trk = [];
     this.extensions = [];
+}
+
+// helper functions
+
+function loadGpx(gpx_xml_doc) {
+    gpx_obj = new gpx();
+    gpx_obj.trk = loadTracks(gpx_xml_doc);
+    gpx_obj.wpt = loadWaypoints(gpx_xml_doc);
+    return gpx_obj;
+}
+
+function loadWaypoints(gpx_xml_doc) {
+    var waypoints = [];
+    $(gpx_xml_doc).find("wpt").each(function(){
+            var lat = $(this).attr('lat');
+            var lon = $(this).attr('lon');
+            var time = $(this).find('time').text();
+            var waypoint = new wpt(lat, lon);
+            waypoint.name = "(" + lat + ", " + lon + ")";
+            waypoint.time = time;
+            waypoint.marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(waypoint.lat,waypoint.lon),
+                    map: map,
+                    title: waypoint.name
+                });
+            waypoints.push(waypoint);
+        });
+    waypoints.sort(function(a, b){
+            if (a.time > b.time) {
+                return 1;
+            }
+            return -1;
+        });
+    return waypoints;
+}
+
+function loadTracks(gpx_xml_doc) {
+    var tracks = [];
+    $(gpx_xml_doc).find("trk").each(function(){
+            var track = loadTrack(this);
+            tracks.push(track);
+        });
+    return tracks;
+}
+
+function loadTrack(track) {
+    var trk_obj = new trk();
+    $(track).find("trkseg").each(function(){
+            var trkseg_obj = new trkseg();
+            $(this).find("trkpt").each(function(){
+                    var lat = $(this).attr('lat');
+                    var lon = $(this).attr('lon');
+                    var time = $(this).find('time').text();
+                    var trkpt_obj = new wpt(lat,lon);
+                    trkpt_obj.time = time;
+                    trkpt_obj.name = "(" + lat + ", " + lon + ")";
+                    trkpt_obj.marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(trkpt_obj.lat,trkpt_obj.lon),
+                            map: map,
+                            title: trkpt_obj.name
+                        });
+                    trkseg_obj.trkpt.push(trkpt_obj);
+                });
+            trkseg_obj.trkpt.sort(function(a, b){
+                    if (a.time > b.time) {
+                        return 1;
+                    }
+                    return -1;
+                });
+            trk_obj.trkseg.push(trkseg_obj);
+        });
+    return trk_obj;
 }
