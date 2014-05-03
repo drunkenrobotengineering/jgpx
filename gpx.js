@@ -138,11 +138,6 @@ function loadTrack(track) {
                     var trkpt_obj = new wpt(lat,lon);
                     trkpt_obj.time = time;
                     trkpt_obj.name = "(" + lat + ", " + lon + ")";
-                    trkpt_obj.marker = new google.maps.Marker({
-                            position: new google.maps.LatLng(trkpt_obj.lat,trkpt_obj.lon),
-                            map: map,
-                            title: trkpt_obj.name
-                        });
                     trkseg_obj.trkpt.push(trkpt_obj);
                 });
             trkseg_obj.trkpt.sort(function(a, b){
@@ -155,3 +150,51 @@ function loadTrack(track) {
         });
     return trk_obj;
 }
+
+window.Collection = (function(){
+        // http://www.bennadel.com/blog/2292-extending-javascript-arrays-while-keeping-native-bracket-notation-functionality.htm
+        function Collection(){
+            var collection = Object.create( Array.prototype );
+            collection = (Array.apply( collection, arguments ) || collection);
+            Collection.injectClassMethods( collection );
+            return( collection );
+        }
+        Collection.injectClassMethods = function( collection ){
+            for (var method in Collection.prototype){
+                if (Collection.prototype.hasOwnProperty( method )){
+                    collection[ method ] = Collection.prototype[ method ];
+                }
+            }
+            return( collection );
+        };
+        Collection.fromArray = function( array ){
+            var collection = Collection.apply( null, array );
+            return( collection ); 
+        };
+        Collection.isArray = function( value ){
+            var stringValue = Object.prototype.toString.call( value );
+            return( stringValue.toLowerCase() === "[object array]" ); 
+        };
+        Collection.prototype = {
+            add: function( value ){
+                if (Collection.isArray( value )){
+                    for (var i = 0 ; i < value.length ; i++){
+                        Array.prototype.push.call( this, value[ i ] );
+                    } 
+                } else {
+                   Array.prototype.push.call( this, value );
+ 
+                }
+                return( this );
+ 
+            },
+            addAll: function(){
+                for (var i = 0 ; i < arguments.length ; i++){
+                    this.add( arguments[ i ] );
+                }
+                return( this ); 
+            }
+ 
+        };
+        return( Collection );
+    }).call( {} );
