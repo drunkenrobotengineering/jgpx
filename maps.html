@@ -13,22 +13,29 @@
     <div class="container-fluid">
       <div class="row">
         <div class="main">
-          <h1 id="header" class="page-header">Current point:</h1>
-          <h2 id="time_range" class="page-header">Time range:</h2>
+          <h1 id="header" class="page-header">GPX display</h1>
 
           <div id="slider" style="width:1000px"></div>
-          <div style="height: 800px;width: 1000px;float:left" id="map-canvas"></div>
-          <div style="height: 800px;float:right" id="gpx">
+          <div style="height: 750px;width: 1000px;float:left" id="map-canvas"></div>
+          <div style="height: 700px;float:right" id="gpx">
 
             <div class="row">
               <h2 class="page-header">Input .gpx data here:</h2>
             </div>
             <div class="row">
-              <textarea id="gpx_input" rows="50" cols="50"></textarea>
+              <h3 class="page-header" id="number_of_tracks">Number of tracks:</h3>
+              <h3 class="page-header" id="time_display">Time: </h3>
             </div>
             <div class="row">
               <button id="loadPoints" type="button" onclick="">Load points</button>
               <button id="showPoints" type="button" onclick="">Show all points</button>
+            </div>
+            <div class="row">
+              <input type="checkbox" id="standardize_times" value="False">Match start times
+              <input type="checkbox" id="auto_scroll" value="False">Auto-Scroll
+            </div>
+            <div class="row">
+              <textarea id="gpx_input" rows="25" cols="50"></textarea>
             </div>
           </div>
         </div>

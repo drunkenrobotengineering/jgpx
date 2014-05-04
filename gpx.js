@@ -102,11 +102,9 @@ function loadWaypoints(gpx_xml_doc) {
             var waypoint = new wpt(lat, lon);
             waypoint.name = "(" + lat + ", " + lon + ")";
             waypoint.time = time;
-            waypoint.marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(waypoint.lat,waypoint.lon),
-                    map: map,
-                    title: waypoint.name
-                });
+            if (waypoint.time != null) {
+                var date = new Date(waypoint.time);
+            }
             waypoints.push(waypoint);
         });
     waypoints.sort(function(a, b){
@@ -137,6 +135,10 @@ function loadTrack(track) {
                     var time = $(this).find('time').text();
                     var trkpt_obj = new wpt(lat,lon);
                     trkpt_obj.time = time;
+                    trkpt_obj.timestamp = 0;
+                    if (trkpt_obj.time != null) {
+                        var date = new Date(trkpt_obj.time);
+                    }
                     trkpt_obj.name = "(" + lat + ", " + lon + ")";
                     trkseg_obj.trkpt.push(trkpt_obj);
                 });
